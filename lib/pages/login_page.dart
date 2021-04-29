@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:login_flutter/api/api_service.dart';
 import 'package:login_flutter/model/login_model.dart';
+import 'package:login_flutter/ProgressHud.dart';
+
+import '../ProgressHud.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -10,10 +14,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final scaffoldkey = GlobalKey<ScaffoldState>();
   GlobalKey<FormState> globalFormKey = new GlobalKey<FormState>();
-
   bool hidePassword = true;
-
   LoginRequestModel requestModel;
+  bool isApiCallProcess = false;
 
   @override
   void initState() {
@@ -22,6 +25,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget build(BuildContext context) {
+    return ProgressHud(
+        child: _uiSteup(context), inAsyncCall: isApiCallProcess, opacity: 0.3);
+  }
+
+  Widget _uiSteup(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).accentColor,
       key: scaffoldkey,
@@ -136,6 +144,22 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           onPressed: () {
                             if (validateAndSave()) {
+                              setState(() {
+                                isApiCallProcess = true;
+                              });
+
+                              APIService apiService = new APIService();
+                              apiService.login(requestModel).then((value) {
+                                setState(() {
+                                  isApiCallProcess = false;
+                                });
+                                if (value.token.isNotEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text("Login Successfull")));
+                                }else{
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text("Login Failed")));}
+                              });
                               print(requestModel.toJson());
                             }
                           },
