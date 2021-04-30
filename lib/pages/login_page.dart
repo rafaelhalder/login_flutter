@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:login_flutter/api/api_service.dart';
 import 'package:login_flutter/model/login_model.dart';
 import 'package:login_flutter/ProgressHud.dart';
+import 'package:login_flutter/shared_service.dart';
 
 import '../ProgressHud.dart';
 
@@ -15,13 +16,15 @@ class _LoginPageState extends State<LoginPage> {
   final scaffoldkey = GlobalKey<ScaffoldState>();
   GlobalKey<FormState> globalFormKey = new GlobalKey<FormState>();
   bool hidePassword = true;
-  LoginRequestModel requestModel;
+  LoginRequestModel loginRequestModel;
   bool isApiCallProcess = false;
 
   @override
   void initState() {
     super.initState();
-    requestModel = new LoginRequestModel();
+    loginRequestModel = new LoginRequestModel();
+    loginRequestModel.email = 'eve.holt@reqres.in';
+    loginRequestModel.password = 'cityslicka';
   }
 
   Widget build(BuildContext context) {
@@ -67,7 +70,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         new TextFormField(
                           keyboardType: TextInputType.emailAddress,
-                          onSaved: (input) => requestModel.email = input,
+                          initialValue: loginRequestModel.email,
+                          onSaved: (input) => loginRequestModel.email = input,
                           validator: (input) => !input.contains("@")
                               ? "Cade o arroba animal"
                               : null,
@@ -95,7 +99,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         new TextFormField(
                           keyboardType: TextInputType.text,
-                          onSaved: (input) => requestModel.password = input,
+                          initialValue: loginRequestModel.password,
+                          onSaved: (input) => loginRequestModel.password = input,
                           validator: (input) => input.length < 3
                               ? "mais de 3 digitodasdads tem q por"
                               : null,
@@ -149,18 +154,24 @@ class _LoginPageState extends State<LoginPage> {
                               });
 
                               APIService apiService = new APIService();
-                              apiService.login(requestModel).then((value) {
+                              apiService.login(loginRequestModel).then((value) {
                                 setState(() {
                                   isApiCallProcess = false;
                                 });
                                 if (value.token.isNotEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Login Successfull")));
-                                }else{
+                                      SnackBar(
+                                          content: Text("Login Successfull")));
+
+                                  SharedService.setLoginDetails(value);
+                                  Navigator.of(context)
+                                      .pushReplacementNamed('/home');
+                                } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Login Failed")));}
+                                      SnackBar(content: Text("Login Failed")));
+                                }
                               });
-                              print(requestModel.toJson());
+                              print(loginRequestModel.toJson());
                             }
                           },
                           child: Text(

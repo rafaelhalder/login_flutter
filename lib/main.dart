@@ -1,6 +1,16 @@
+import 'package:login_flutter/pages/home_page.dart';
 import 'package:login_flutter/pages/login_page.dart';
 import 'package:flutter/material.dart';
-void main(){
+import 'package:login_flutter/shared_service.dart';
+
+Widget _defaultHome = LoginPage();
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  bool _isLoggedIn = await SharedService.isLoggedIn();
+
+  if(_isLoggedIn){
+    _defaultHome = new HomePage();
+  }
   runApp(MyApp());
 }
 
@@ -8,7 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Login Screen',
+      title: 'Dashboard Screen',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'Poppins',
@@ -31,7 +41,11 @@ class MyApp extends StatelessWidget {
           )
         )
       ),
-      home: LoginPage(),
+      home: _defaultHome,
+      routes: <String, WidgetBuilder>{
+        '/home': (BuildContext context) => new HomePage(),
+        '/login': (BuildContext context) => new LoginPage()
+      },
     );
   }
 }

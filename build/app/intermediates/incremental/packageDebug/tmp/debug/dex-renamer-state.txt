@@ -1,4 +1,4 @@
-#Thu Apr 29 09:51:03 BRT 2021
+#Fri Apr 30 17:22:42 BRT 2021
 base.0=/home/rafael/AndroidStudioProjects/login_flutter/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
 renamed.0=classes.dex
 path.0=classes.dex
